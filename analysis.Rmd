@@ -1,0 +1,33 @@
+#Analysis
+
+```{r setup, include=FALSE}
+
+learn<- read.csv("learn.csv")
+
+```
+
+## Introduction
+
+In this final project I will study the data frame learning2014. The data frame contains answers from feedback questionnare and exam points from course Introduction to Statistics from 2014.
+
+```{r cars, echo=FALSE}
+summary(learn)
+
+dim(learn)
+```
+
+The data frame has 183 observations and 9 variables. Gender and age are self explanatory variables. Deep, stra and surf refer to the questions asked: deep, strategic and surface questions. Attitude contains scores from questions regarding attitude towards statistics and interest in the same way scores from questions regarding interest towards statistics. Points are the exam points gained by the student. The last variable high_points is a binomial variable containing value true, if the mean score calculated from points and attitude is higher than 26 (mean from all observations).
+
+For this data frame I will present a hypothesis as follows:
+
+  *"Students who have on average high exam points and score high on attitude towards statistics also have high interest in statistics."*
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
