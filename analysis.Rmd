@@ -18,11 +18,18 @@ dim(learn)
 
 The data frame has 183 observations and 9 variables. Gender and age are self explanatory variables. Deep, stra and surf refer to the questions asked: deep, strategic and surface questions. Attitude contains scores from questions regarding attitude towards statistics and interest in the same way scores from questions regarding interest towards statistics. Points are the exam points gained by the student. The last variable high_points is a binomial variable containing value true, if the mean score calculated from points and attitude is higher than 26 (mean from all observations).
 
-To study this data frame, I will introduce a hypothesis:
+To study this data frame, I will introduce two hypothesis:
 
   <span style="color:#159957">*"Students who have on average high exam points and score high on attitude towards statistics also have high interest in statistics."*
   
-This means that I will focus on variables interest and high_points in the following analysis. 
+The first hypothesis suggests that high exam points combined with positive attitude towards statistics indicate that the person is also interested in the field. 
+
+The second hypothesis is the following:
+
+  <span style="color:#159957">*"Students gender does not affect having both high exam points and positive attitude towards statistics."*
+
+In other words, this means that both male and female participants had fairly equal amount of persons with both high exam points and positive attitude answers in poll. In terms of statistics, neither of the genders correlate with high points. These hypothesis will be further examined in the following chapters.
+
 
 #Looking closer
 
@@ -49,18 +56,42 @@ Looking at the variables individually there can be seen some trends in them. Cle
 ```{r versus, echo=FALSE}
 par(mfrow=c(2,2))
 
-t1 <- table(high_points = learn$high_points, interest=learn$interest)
-t2 <- table(high_points = learn$high_points, gender=learn$gender)
-t3 <- table(high_points = learn$high_points, age=learn$age)
+for (i in 1:ncol(learn)) {
+  if(colnames(learn)[i] == "high_points"){
+    break
+  }else if(colnames(learn)[i] == "attitude" || colnames(learn)[i] == "points" ){
+    next
+  }
 
-barplot(t1, main="High points vs Interest",  ylab = "Count",col = c("#159957", "#155D93"))
-barplot(t2, main="High points vs Gender",  ylab = "Count",col = c("#159957", "#155D93"))
-barplot(t3, main="High points vs Age",  ylab = "Count",col = c("#159957", "#155D93"))
+t1 <- table(high_points = learn$high_points, variable = learn[,i])
+
+barplot(t1, main=paste("High points vs", colnames(learn)[i]) ,  ylab = "High Points",col = c("#159957", "#155D93"))
+legend("topright", 
+       legend = c("F", "T"), 
+       fill = c("#159957", "#155D93"), ncol = 2,
+       cex = 0.60)
+
+}
 
 ```
+ 
+ 
+The barplots above show the comparison between high points and rest of the variables in data frame. Genderwise, there is a higher proportion of high points in men than in female. It indicates that our hypothesis is false, but let's keep it with us until the correlation is confirmed. 
+
+In interest, one's who answered high in interest (8, 9 or 10) have a higher proportion of high points as well. This is consistent with the hypothesis given above. 
+
+
 
 #Logistic regression
 
+```{r logit, echo=FALSE}
+m <- glm(high_points ~ interest + gender, data = learn, family = "binomial")
+
+summary(m)
+
+```
+
+Above is the summary of logistic regression made to data frame.
 
 
 #Odds ratio
