@@ -118,6 +118,17 @@ summary(m2)
 
 It is clear that this model is far from the explanatory power of the first one. The coefficents correlations scores are unexisting.
 
+It's clear that our hypothesis with gender is proven to be false, so I'll continue with a logistic model without gender.
+
+```{r logit_final, echo=FALSE}
+m <- glm(high_points ~ interest, data = learn, family = "binomial")
+
+summary(m)
+
+```
+
+
+
 ```{r logitgraph, echo=FALSE}
 library(popbio)
 logi.hist.plot(learn$interest,learn$high_points,boxp=FALSE,type="hist",col="forestgreen")
@@ -153,26 +164,23 @@ table(high_points = learn$high_points, prediction = probabilities > 0.5)
 ```
 
 
-Overall view of the prediction looks successful. 
+Overall view of the prediction looks successful. The following graph clarifies the prediction with probabilities on the y-axis ( used as basis for making predictions). The probability of having high_points increases when points to interest increases.
 
 ```{r curve, echo=FALSE}
 m3 <- glm(high_points ~ interest, data = learn, family = "binomial")
-plot(learn$interest,learn$high_points,xlab="Interest",ylab="Probability of high points")
-curve(predict(m3, data.frame(interest = x), type = "response"),add=TRUE) 
+plot(learn$interest,learn$probability,xlab="Interest",ylab="Probablity", col="#114882")
+curve(predict(m3, data.frame(interest = x), type = "response"),add=TRUE, col="forestgreen") 
 points(learn$interest,fitted(m3),pch=20)
 ```
 
 
 
-Incase nothing else is found, use this one on the below: 
+
 
 
 ```{r ggplots, echo=FALSE}
-g <- ggplot(learn, aes(x = probability, y = high_points, col= prediction))
 
-g + geom_point()
 
-table(high_points = learn$high_points, prediction = learn$prediction) %>% prop.table() %>% addmargins()
 
 
 ```
