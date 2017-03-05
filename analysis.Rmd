@@ -1,7 +1,8 @@
 #Analysis
 
 ```{r setup, include=FALSE}
-library(tidyr); library(dplyr); library(ggplot2)
+library(tidyr); library(plyr); library(dplyr); library(ggplot2)
+library(corrplot)
 learn<- read.csv("learn.csv")
 
 ```
@@ -78,9 +79,22 @@ legend("topright",
  
 The barplots above show the comparison between high points and rest of the variables in data frame. Genderwise, there is a higher proportion of high points in men than in female. It indicates that our hypothesis is false, but let's keep it with us until the correlation is confirmed. 
 
-In interest, one's who answered high in interest (8, 9 or 10) have a higher proportion of high points as well. This is consistent with the hypothesis given above. 
+In interest, ones who answered high in interest (8, 9 or 10) have a higher proportion of high points as well. This is consistent with the hypothesis given above. 
 
 
+```{r corr, echo=FALSE}
+learn_corr <- learn
+learn_corr$high_points <- 1 * learn_corr$high_points 
+learn_corr$gender <- as.numeric(learn_corr$gender)
+
+cor_matrix<-cor(learn_corr) %>% round(digits= 2)
+col1 <- colorRampPalette(c("mediumseagreen","forestgreen","#15866A", "white" ,"#2166AC","#114882", "mediumblue"))
+
+corrplot(cor_matrix, type="upper", cl.pos="b", tl.pos="d", tl.col = "black", tl.cex = 0.6, method="circle", col=col1(100))
+
+```
+
+The correlation matrix above shows that there are no negative correlations in this data frame. On the other hand there is strong positive correlation between interest and attitude. In here the correlation between high points and the rest of the variables is smaller than previously noticed. Still, without a doubt it is significant, since the color and size indicates 0.4 positive correlation.
 
 #Logistic regression
 
@@ -91,7 +105,74 @@ summary(m)
 
 ```
 
-Above is the summary of logistic regression made to data frame.
+Above is the summary of logistic regression model made for same data frame. The coefficents show that interest is high in statsicial significance. 
 
+For the purpose of testing, let's see how this model would look with surface and age as explanatory variables.
+
+```{r logit2, echo=FALSE}
+m2 <- glm(high_points ~ surf + age, data = learn, family = "binomial")
+
+summary(m2)
+
+```
+
+It is clear that this model is far from the explanatory power of the first one. The coefficents correlations scores are unexisting.
+
+```{r logitgraph, echo=FALSE}
+library(popbio)
+logi.hist.plot(learn$interest,learn$high_points,boxp=FALSE,type="hist",col="forestgreen")
+
+```
 
 #Odds ratio
+
+```{r odds, echo=FALSE}
+OR <- coef(m) %>% exp
+CI <- confint(m) %>% exp
+
+cbind(OR, CI)
+
+```
+ 
+The odds ratio of the model tells us that male students are 2,5 times more likely to get high points than female. This brings down our original hypothesis.
+
+
+#Prediction
+
+To finish off this project, let's see how predicting from this model turns out.
+I'll use the Rs own predict- function on the logistic regression model created earlier to count propabilities.
+
+```{r predict, echo=FALSE}
+probabilities <- predict(m, type = "response")
+learn <- mutate(learn, probability = probabilities)
+
+learn <- mutate(learn, prediction = probabilities > 0.5)
+table(high_points = learn$high_points, prediction = probabilities > 0.5)
+
+
+```
+
+
+Overall view of the prediction looks successful. 
+
+```{r curve, echo=FALSE}
+m3 <- glm(high_points ~ interest, data = learn, family = "binomial")
+plot(learn$interest,learn$high_points,xlab="Interest",ylab="Probability of high points")
+curve(predict(m3, data.frame(interest = x), type = "response"),add=TRUE) 
+points(learn$interest,fitted(m3),pch=20)
+```
+
+
+
+Incase nothing else is found, use this one on the below: 
+
+
+```{r ggplots, echo=FALSE}
+g <- ggplot(learn, aes(x = probability, y = high_points, col= prediction))
+
+g + geom_point()
+
+table(high_points = learn$high_points, prediction = learn$prediction) %>% prop.table() %>% addmargins()
+
+
+```

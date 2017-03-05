@@ -50,4 +50,4 @@ glimpse(learn)
 #Load the data frame into .csv- file
 write.csv(learn, "learn.csv", row.names = FALSE)
 
-install.packages("prettydoc")
+install.packages("popbio")
