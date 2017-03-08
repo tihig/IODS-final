@@ -1,8 +1,9 @@
 ---
 title: "README"
 author: "tihig"
-date: "26 helmikuuta 2017"
+date: "`r Sys.Date()`"
 output: html_document
 ---
 
 *This is the final project for course Introduction to Open Data Science. *
+[Project webpage](https://tihig.github.io/IODS-final/)
