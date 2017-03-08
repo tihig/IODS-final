@@ -36,7 +36,7 @@ In other words, this means that both male and female participants had fairly equ
 
 
 ```{r variables, echo=FALSE}
-par(mfrow=c(2,3))
+par(mfrow=c(3,3))
 
 for (i in 1:ncol(learn)) {
   if(colnames(learn)[i] == "high_points"){
@@ -51,19 +51,20 @@ for (i in 1:ncol(learn)) {
 
 ```
 
+
 Looking at the variables individually there can be seen some trends in them. Clearly most of the participants are colse to aged 20 and there were more female than men. Attitude and strategic are scattered widely and cannot be further explained here. Most of the students got 15-20 points from their exam. This means that assuming passing required 15 to 18 points, most of the students who answered to the questionnare passed the exam. Interest towards statistics is grouped mostly near 8/10 as is expected (would be quite odd if most of the students of statistics are not interested at all).
 
 
+
 ```{r versus, echo=FALSE}
-par(mfrow=c(2,2))
+par(mfrow=c(3,2))
 
 for (i in 1:ncol(learn)) {
-  if(colnames(learn)[i] == "high_points"){
+    if(colnames(learn)[i] == "high_points"){
     break
   }else if(colnames(learn)[i] == "attitude" || colnames(learn)[i] == "points" ){
     next
   }
-
 t1 <- table(high_points = learn$high_points, variable = learn[,i])
 
 barplot(t1, main=paste("High points vs", colnames(learn)[i]) ,  ylab = "High Points",col = c("#159957", "#155D93"))
@@ -71,7 +72,6 @@ legend("topright",
        legend = c("F", "T"), 
        fill = c("#159957", "#155D93"), ncol = 2,
        cex = 0.60)
-
 }
 
 ```
@@ -118,7 +118,7 @@ summary(m2)
 
 It is clear that this model is far from the explanatory power of the first one. The coefficents correlations scores are unexisting.
 
-It's clear that our hypothesis with gender is proven to be false, so I'll continue with a logistic model without gender.
+It's clear that our hypothesis with gender is proven to be false, so I'll continue with a logistic model without gender as explanatory variable.
 
 ```{r logit_final, echo=FALSE}
 m <- glm(high_points ~ interest, data = learn, family = "binomial")
@@ -126,8 +126,6 @@ m <- glm(high_points ~ interest, data = learn, family = "binomial")
 summary(m)
 
 ```
-
-
 
 ```{r logitgraph, echo=FALSE}
 library(popbio)
@@ -137,7 +135,7 @@ logi.hist.plot(learn$interest,learn$high_points,boxp=FALSE,type="hist",col="fore
 
 #Odds ratio
 
-```{r odds, echo=FALSE}
+```{r odds, echo=FALSE, message=FALSE}
 OR <- coef(m) %>% exp
 CI <- confint(m) %>% exp
 
@@ -153,24 +151,29 @@ The odds ratio of the model tells us that male students are 2,5 times more likel
 To finish off this project, let's see how predicting from this model turns out.
 I'll use the Rs own predict- function on the logistic regression model created earlier to count propabilities.
 
-```{r predict, echo=FALSE}
+```{r predict, echo=FALSE, message=FALSE}
 probabilities <- predict(m, type = "response")
 learn <- mutate(learn, probability = probabilities)
 
 learn <- mutate(learn, prediction = probabilities > 0.5)
-table(high_points = learn$high_points, prediction = probabilities > 0.5)
+t2<-table(high_points = learn$high_points, prediction = probabilities > 0.5)
+t2
 
 
 ```
 
 
-Overall view of the prediction looks successful. The following graph clarifies the prediction with probabilities on the y-axis ( used as basis for making predictions). The probability of having high_points increases when points to interest increases.
+Overall view of the prediction looks successful. The following graph clarifies the prediction with probabilities on the y-axis ( used as basis for making predictions). The probability of having high_points increases when points to interest increases. Below is also a plot made from the prediction and high_point values to carify.
+
+```{r predictplot, echo=FALSE}
+plot(t2, col= c("#159957", "#155D93"), main= "High Points vs Predicted values")
+
+```
 
 ```{r curve, echo=FALSE}
-m3 <- glm(high_points ~ interest, data = learn, family = "binomial")
-plot(learn$interest,learn$probability,xlab="Interest",ylab="Probablity", col="#114882")
-curve(predict(m3, data.frame(interest = x), type = "response"),add=TRUE, col="forestgreen") 
-points(learn$interest,fitted(m3),pch=20)
+plot(learn$interest,learn$prediction,xlab="Interest",ylab="Prediction", col="#114882")
+curve(predict(m, data.frame(interest = x), type = "response"),add=TRUE, col="forestgreen") 
+points(learn$interest,fitted(m),pch=20)
 ```
 
 
@@ -178,9 +181,3 @@ points(learn$interest,fitted(m3),pch=20)
 
 
 
-```{r ggplots, echo=FALSE}
-
-
-
-
-```
