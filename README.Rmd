@@ -5,5 +5,5 @@ date: "8.3.2017"
 output: html_document
 ---
 
-*This is the final project for course Introduction to Open Data Science. *
+This is the final project for course Introduction to Open Data Science. In this project I will study the data frame learning2014 provided by the course and the technique used is logistic regression. The complete analysis report can be found from here: 
 [Project webpage](https://tihig.github.io/IODS-final/)
