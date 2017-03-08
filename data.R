@@ -25,7 +25,6 @@ strategic_columns <- select(learn, one_of(strategic_questions))
 learn$stra <- rowMeans(strategic_columns)
 
 
-
 #Creating new variable att_points= average of attitude and points
 learn <- mutate(learn, att_points = (Attitude + Points) / 2)
 

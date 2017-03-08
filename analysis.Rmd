@@ -1,4 +1,9 @@
-#Analysis
+#*Abstract*
+
+*The learning2014 dataset, in short learn, contains the answers of feedback questionnare from the course Introduction to Statistics. In this analysis I will study two hypothesis regarding the mean of attitude and exam points versus interest in statistics or gender.*
+
+
+------
 
 ```{r setup, include=FALSE}
 library(tidyr); library(plyr); library(dplyr); library(ggplot2)
@@ -7,7 +12,7 @@ learn<- read.csv("learn.csv")
 
 ```
 
-## Introduction
+# Introduction
 
 In this final project I will study the data frame learning2014 introduced in the course *Introduction to Open Data Science*, or in short *IODS*. The data frame contains answers from feedback questionnare and exam points from course Introduction to Statistics held in 2014. 
 
@@ -17,19 +22,19 @@ summary(learn)
 dim(learn)
 ```
 
-The data frame has 183 observations and 9 variables. Gender and age are self explanatory variables. Deep, stra and surf refer to the questions asked: deep, strategic and surface questions. Attitude contains scores from questions regarding attitude towards statistics and interest in the same way scores from questions regarding interest towards statistics. Points are the exam points gained by the student. The last variable high_points is a binomial variable containing value true, if the mean score calculated from points and attitude is higher than 26 (mean from all observations).
+The data frame has 183 observations and 9 variables. Gender and age are self explanatory variables, gender and age of students. Deep, stra and surf refer to the topics of questions asked: deep, strategic and surface questions. Attitude contains scores from questions regarding attitude towards statistics and interest similarily scores from questions regarding interest towards statistics. Points are the exam points gained by the student. The last variable high_points is a binomial variable containing value true, if the mean score calculated from points and attitude is higher than 26 (mean from all observations).
 
 To study this data frame, I will introduce two hypothesis:
 
   <span style="color:#159957">*"Students who have on average high exam points and score high on attitude towards statistics also have high interest in statistics."*
   
-The first hypothesis suggests that high exam points combined with positive attitude towards statistics indicate that the person is also interested in the field. 
+The first hypothesis suggests that high_points indicate that the person is also interested in the field. 
 
 The second hypothesis is the following:
 
   <span style="color:#159957">*"Students gender does not affect having both high exam points and positive attitude towards statistics."*
 
-In other words, this means that both male and female participants had fairly equal amount of persons with both high exam points and positive attitude answers in poll. In terms of statistics, neither of the genders correlate with high points. These hypothesis will be further examined in the following chapters.
+In other words, this means that both male and female participants had fairly equal proportion of high points. In terms of statistics, neither of the genders correlate with high points or both of them correlate. These hypothesis will be further examined in the following chapters.
 
 
 #Looking closer
@@ -52,7 +57,7 @@ for (i in 1:ncol(learn)) {
 ```
 
 
-Looking at the variables individually there can be seen some trends in them. Clearly most of the participants are colse to aged 20 and there were more female than men. Attitude and strategic are scattered widely and cannot be further explained here. Most of the students got 15-20 points from their exam. This means that assuming passing required 15 to 18 points, most of the students who answered to the questionnare passed the exam. Interest towards statistics is grouped mostly near 8/10 as is expected (would be quite odd if most of the students of statistics are not interested at all).
+Looking at the variables individually there can be seen some trends in them. Clearly most of the participants are close to aged 20 and there were almost twice more female than male students. Attitude and strategic are scattered widely and cannot be further explained here. Most of the students got 15-20 points from their exam. This means that assuming passing required 15 to 18 points, most of the students who answered to the questionnare passed the exam. Interest towards statistics is grouped mostly near 8/10 as is expected (would be quite odd if most of the students of statistics are not interested at all).
 
 
 
@@ -77,7 +82,7 @@ legend("topright",
 ```
  
  
-The barplots above show the comparison between high points and rest of the variables in data frame. Genderwise, there is a higher proportion of high points in men than in female. It indicates that our hypothesis is false, but let's keep it with us until the correlation is confirmed. 
+The barplots above show the comparison between high points and rest of the variables in data frame. Genderwise, there is a higher proportion of high points in men than in female. It indicates that our hypothesis is false, but let's keep this variable with the analysed variables until the correlation is confirmed. 
 
 In interest, ones who answered high in interest (8, 9 or 10) have a higher proportion of high points as well. This is consistent with the hypothesis given above. 
 
@@ -99,39 +104,28 @@ The correlation matrix above shows that there are no negative correlations in th
 #Logistic regression
 
 ```{r logit, echo=FALSE}
-m <- glm(high_points ~ interest + gender, data = learn, family = "binomial")
+m1 <- glm(high_points ~ interest + gender, data = learn, family = "binomial")
 
-summary(m)
-
-```
-
-Above is the summary of logistic regression model made for same data frame. The coefficents show that interest is high in statsicial significance. 
-
-For the purpose of testing, let's see how this model would look with surface and age as explanatory variables.
-
-```{r logit2, echo=FALSE}
-m2 <- glm(high_points ~ surf + age, data = learn, family = "binomial")
-
-summary(m2)
+summary(m1)
 
 ```
 
-It is clear that this model is far from the explanatory power of the first one. The coefficents correlations scores are unexisting.
+Above is the summary of logistic regression model made for learning2014 data frame. The coefficents show that interest is high in statsicial significance.
 
-It's clear that our hypothesis with gender is proven to be false, so I'll continue with a logistic model without gender as explanatory variable.
+It's clear that our hypothesis with gender is proven to be false, with a little hesitation. As previously seen, there are almost twice the amount of female then male students. This will impact the reliability of this analysis, since the sample size is inconsistent.
 
-```{r logit_final, echo=FALSE}
+
+To enhance the explanatory power of the model, I'll continue with a logistic model without gender as explanatory variable.
+
+```{r logit_final, echo=FALSE, message=FALSE, warning=FALSE}
 m <- glm(high_points ~ interest, data = learn, family = "binomial")
 
 summary(m)
 
 ```
 
-```{r logitgraph, echo=FALSE}
-library(popbio)
-logi.hist.plot(learn$interest,learn$high_points,boxp=FALSE,type="hist",col="forestgreen")
 
-```
+
 
 #Odds ratio
 
@@ -143,7 +137,7 @@ cbind(OR, CI)
 
 ```
  
-The odds ratio of the model tells us that male students are 2,5 times more likely to get high points than female. This brings down our original hypothesis.
+The odds ratio of the model tells us that male students are 2,5 times more likely to get high points than female. This brings down our original hypothesis. The odds ratio of interest has medium large interval compared to target variables. 
 
 
 #Prediction
@@ -165,19 +159,42 @@ t2
 
 Overall view of the prediction looks successful. The following graph clarifies the prediction with probabilities on the y-axis ( used as basis for making predictions). The probability of having high_points increases when points to interest increases. Below is also a plot made from the prediction and high_point values to carify.
 
+
+
 ```{r predictplot, echo=FALSE}
 plot(t2, col= c("#159957", "#155D93"), main= "High Points vs Predicted values")
 
 ```
 
-```{r curve, echo=FALSE}
-plot(learn$interest,learn$prediction,xlab="Interest",ylab="Prediction", col="#114882")
-curve(predict(m, data.frame(interest = x), type = "response"),add=TRUE, col="forestgreen") 
-points(learn$interest,fitted(m),pch=20)
+```{r logitgraph, echo=FALSE, message=FALSE, warning=FALSE}
+plot(learn$interest,learn$high_points, type= "l", xlab="Interest", ylab="High points",  col="#2166AC", count= TRUE, main="Probability of high points vs interest")
+curve(predict(m,data.frame(interest=x),type="resp"),add=TRUE, col = "forestgreen", lwd=5)
+
+```
+The graph above shows the predictions in a different kind of graph. The curve represents the predictions and lines the actual high_points values. The more there are lines, the more there are values. This graph summarizes the fact that there are non or very few people who had high points and gave low score for interest questions. Also, the probability of having high points grows when the interest score grows, which indicates that our hypothesis is on point.
+
+```{r accuracy, echo=FALSE}
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+loss_func(class = learn$high_points, prob = learn$probability)
+
+library(boot)
+cv <- cv.glm(data = learn, cost = loss_func, glmfit = m, K = 10)
+cv$delta[1]
+
 ```
 
 
+Lastly, the first number above is the amount from lost function that tells us the proportion of falsely predicted values of high points. This means that approximately 26% of the predictions were false on average. The number below tells the average amount of falsely predicted values.
 
 
+#Conclusion
+
+The analysis made in this page proved that students from Introduction to Statistics course are likely to be interest in the field of statistics, if they on average scored high on exam and answered high on attitude questions (named high points). The model here made a convincing prove, but has some faults: 1/4 predictions were false and the would need more explanatory variables with deeper analytics to actually prove this in larger scale. 
+
+Second hypothesis about gender not being relevant in determining, if the person got high points in attitude/exam points average. Although, this could be generalized, we have to look towards the observations themselves more carefully. The amount of female is a lot higher than male, which impacts the outcome of this analysis.
 
 
